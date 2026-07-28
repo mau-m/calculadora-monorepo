@@ -139,3 +139,4 @@ También hay un archivo de ejemplo `docker-compose-prod.yml` (si existe) para de
 - En producción, no uses `CORS_ORIGINS = ["*"]` — lista explícita de orígenes.
 - Añade CI para ejecutar `pytest` y `npm test` en PRs.
 
+

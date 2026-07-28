@@ -1,0 +1,29 @@
+# Byte-compiled / Python caches
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Distribution / packages
+build/
+develop-eggs/
+dist/
+*.egg-info/
+.eggs/
+wheels/
+
+# Virtual Environments
+.venv/
+venv/
+env/
+.env
+
+# Unit test / coverage / analysis
+.tox/
+.coverage
+.pytest_cache/
+.mypy_cache/
+
+# IDE / Project settings
+.vscode/
+.idea/
+*.swp

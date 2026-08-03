@@ -1,4 +1,5 @@
 name: Build images
+
 on:
   push:
     branches:
@@ -23,37 +24,45 @@ jobs:
           fetch-depth: 0
 
       - name: Configurar credenciales AWS via OIDC
-        uses: aws-actions/configure-aws-credentials@v4
+        if: github.event_name == 'push'
+        uses: aws-actions/configure-aws-credentials@v5
         with:
-          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
           aws-region: ${{ vars.AWS_REGION }}
 
       - name: Autenticar Docker con ECR
+        if: github.event_name == 'push'
         uses: aws-actions/amazon-ecr-login@v2
 
       - name: Build y push de la imagen Backend
+        if: github.event_name == 'push'
         env:
-          BACKEND_ECR_REGISTRY : ${{ vars.BACKEND_ECR_REGISTRY }}
-          IMAGE_TAG : ${{ github .sha }}
+          BACKEND_ECR_REGISTRY: ${{ vars.BACKEND_ECR_REGISTRY }}
+          IMAGE_TAG: ${{ github.sha }}
         run: |
           docker build \
-            -t $BACKEND_ECR_REGISTRY:$IMAGE_TAG \
-            -t $BACKEND_ECR_REGISTRY:latest \
-            ./ backend /.
-          docker push $BACKEND_ECR_REGISTRY:$IMAGE_TAG
-          docker push $BACKEND_ECR_REGISTRY:latest
+            -t "$BACKEND_ECR_REGISTRY:$IMAGE_TAG" \
+            -t "$BACKEND_ECR_REGISTRY:latest" \
+            ./backend/.
+          docker push "$BACKEND_ECR_REGISTRY:$IMAGE_TAG"
+          docker push "$BACKEND_ECR_REGISTRY:latest"
 
-      - name: Escribir summary del job ( Backend )
-        if: always ()
-        env:
-          JOB_STATUS : ${{ job. status }}
-          IMAGE_TAG : ${{ github .sha }}
+      - name: Build local de la imagen Backend (validación PR)
+        if: github.event_name == 'pull_request'
         run: |
-          echo "## Resumen del job - Backend " >> $GITHUB_STEP_SUMMARY
-          echo "- Job: ${ GITHUB_JOB }" >> $GITHUB_STEP_SUMMARY
-          echo "- Status : ${ JOB_STATUS }" >> $GITHUB_STEP_SUMMARY
-          echo "- Commit : ${ GITHUB_SHA }" >> $GITHUB_STEP_SUMMARY
-          echo "- Image tag: ${ IMAGE_TAG }" >> $GITHUB_STEP_SUMMARY
+          docker build -t backend:pr ./backend/.
+
+      - name: Escribir summary del job (Backend)
+        if: always()
+        env:
+          JOB_STATUS: ${{ job.status }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          echo "## Resumen del job - Backend" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Job: ${GITHUB_JOB}" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Status: ${JOB_STATUS}" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Commit: ${GITHUB_SHA}" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Image tag: ${IMAGE_TAG}" >> "$GITHUB_STEP_SUMMARY"
 
   frontend-build:
     name: Build Frontend Docker Image
@@ -61,39 +70,47 @@ jobs:
 
     steps:
       - name: Checkout del repositorio
-        uses: actions / checkout@v4
+        uses: actions/checkout@v4
         with:
-          fetch -depth: 0
+          fetch-depth: 0
 
       - name: Configurar credenciales AWS via OIDC
-        uses: aws - actions /configure -aws - credentials@v4
+        if: github.event_name == 'push'
+        uses: aws-actions/configure-aws-credentials@v5
         with:
-          role - to - assume: ${{ secrets.AWS_ROLE_ARN }}
-          aws - region: ${{ vars.AWS_REGION }}
+          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
 
       - name: Autenticar Docker con ECR
+        if: github.event_name == 'push'
         uses: aws-actions/amazon-ecr-login@v2
 
       - name: Build y push de la imagen Frontend
+        if: github.event_name == 'push'
         env:
-          FRONTEND_ECR_REGISTRY : ${{ vars.FRONTEND_ECR_REGISTRY }}
-          IMAGE_TAG : ${{ github .sha }}
+          FRONTEND_ECR_REGISTRY: ${{ vars.FRONTEND_ECR_REGISTRY }}
+          IMAGE_TAG: ${{ github.sha }}
         run: |
           docker build \
-            -t $FRONTEND_ECR_REGISTRY:$IMAGE_TAG \
-            -t $FRONTEND_ECR_REGISTRY:latest \
-            ./ frontend /.
-          docker push $FRONTEND_ECR_REGISTRY:$IMAGE_TAG
-          docker push $FRONTEND_ECR_REGISTRY:latest
+            -t "$FRONTEND_ECR_REGISTRY:$IMAGE_TAG" \
+            -t "$FRONTEND_ECR_REGISTRY:latest" \
+            ./frontend/.
+          docker push "$FRONTEND_ECR_REGISTRY:$IMAGE_TAG"
+          docker push "$FRONTEND_ECR_REGISTRY:latest"
 
-      - name: Escribir summary del job ( Frontend )
-        if: always ()
-        env:
-          JOB_STATUS : ${{ job. status }}
-          IMAGE_TAG : ${{ github .sha }}
+      - name: Build local de la imagen Frontend (validación PR)
+        if: github.event_name == 'pull_request'
         run: |
-          echo "## Resumen del job - Frontend " >> $GITHUB_STEP_SUMMARY
-          echo "- Job: ${ GITHUB_JOB }" >> $GITHUB_STEP_SUMMARY
-          echo "- Status : ${ JOB_STATUS }" >> $GITHUB_STEP_SUMMARY
-          echo "- Commit : ${ GITHUB_SHA }" >> $GITHUB_STEP_SUMMARY
-          echo "- Image tag: ${ IMAGE_TAG }" >> $GITHUB_STEP_SUMMARY
+          docker build -t frontend:pr ./frontend/.
+
+      - name: Escribir summary del job (Frontend)
+        if: always()
+        env:
+          JOB_STATUS: ${{ job.status }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          echo "## Resumen del job - Frontend" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Job: ${GITHUB_JOB}" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Status: ${JOB_STATUS}" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Commit: ${GITHUB_SHA}" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Image tag: ${IMAGE_TAG}" >> "$GITHUB_STEP_SUMMARY"

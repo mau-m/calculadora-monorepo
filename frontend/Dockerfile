@@ -24,9 +24,11 @@ FROM nginxinc/nginx-unprivileged:1.27-alpine AS runtime
 
 COPY --from=builder /app/build /usr/share/nginx/html
 
-RUN mkdir -p /etc/nginx/templates
-COPY nginx.conf.template /etc/nginx/templates/default.conf.template
+ARG NGINX_TEMPLATE=nginx.dev.conf.template
 
-EXPOSE 8080
+RUN mkdir -p /etc/nginx/templates
+COPY ${NGINX_TEMPLATE} /etc/nginx/templates/default.conf.template
+
+EXPOSE 8080 8443
 
 CMD ["nginx", "-g", "daemon off;"]

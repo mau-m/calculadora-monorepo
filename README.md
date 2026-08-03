@@ -20,7 +20,7 @@ Monorepo de ejemplo con una pequeña aplicación de calculadora dividida en:
 - `frontend/`
 	- `src/` - código React + TypeScript.
 	- `public/` - assets públicos.
-	- `package.json`, `Dockerfile`, `nginx.conf.template`.
+	- `package.json`, `Dockerfile`, `nginx.dev.conf.template`, `nginx.https.conf.template`.
 
 - `docker-compose-dev.yml` - orquesta `backend` y `frontend` en modo desarrollo/integ.
 
@@ -93,7 +93,7 @@ npm test
 - Backend lee variables desde `backend/.env` (si existe) usando `pydantic-settings`.
 	- `JWT_SECRET_KEY`, `JWT_ACCESS_TOKEN_EXPIRE_MINUTES`, `CORS_ORIGINS`, etc. Los valores por defecto están en `app/core/config.py`.
 - Frontend utiliza `REACT_APP_API_URL` para apuntar a la API en desarrollo.
-- En Docker la plantilla `frontend/nginx.conf.template` utiliza `BACKEND_HOST` y `BACKEND_PORT` para enrutar `/api/`.
+- En Docker las plantillas nginx de `frontend/` utilizan `BACKEND_HOST` y `BACKEND_PORT` para enrutar `/api/`. La imagen usa `nginx.dev.conf.template` de forma predeterminada; consulta `frontend/README.md` para construir la variante HTTPS y configurar el dominio en Route 53.
 
 ---
 
@@ -138,5 +138,4 @@ También hay un archivo de ejemplo `docker-compose-prod.yml` (si existe) para de
 - Mantén `JWT_SECRET_KEY` fuera del repositorio; usa secretos/variables en el entorno para producción.
 - En producción, no uses `CORS_ORIGINS = ["*"]` — lista explícita de orígenes.
 - Añade CI para ejecutar `pytest` y `npm test` en PRs.
-
 

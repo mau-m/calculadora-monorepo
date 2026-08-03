@@ -1,0 +1,53 @@
+name: Deploy to AWS
+
+on:
+  push:
+    branches:
+      - 'release/*'
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout del repositorio
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Configurar credenciales AWS via OIDC
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - name: Escribir la versión en el artefacto
+        run: |
+          echo "${{ github.ref_name }}" > .app-version
+
+      - name: Verificar estructura
+        run: |
+          echo "--- Raíz ---"
+          ls -la
+          echo "--- Scripts ---"
+          ls -la scripts || true
+
+      - name: Empaquetar y subir a S3
+        run: |
+          aws deploy push \
+            --application-name "${{ vars.CODEDEPLOY_APP }}" \
+            --s3-location "s3://${{ vars.S3_BUCKET }}/releases/${{ github.ref_name }}.zip" \
+            --source .
+
+      - name: Crear deployment en CodeDeploy
+        run: |
+          aws deploy create-deployment \
+            --application-name "${{ vars.CODEDEPLOY_APP }}" \
+            --deployment-group-name "${{ vars.CODEDEPLOY_GROUP }}" \
+            --s3-location "bucket=${{ vars.S3_BUCKET }},key=releases/${{ github.ref_name }}.zip,bundleType=zip" \
+            --description "Deploy ${{ github.ref_name }} (commit ${{ github.sha }})"

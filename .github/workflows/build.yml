@@ -25,7 +25,7 @@ jobs:
 
       - name: Configurar credenciales AWS via OIDC
         if: github.event_name == 'push'
-        uses: aws-actions/configure-aws-credentials@v5
+        uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ vars.AWS_ROLE_ARN }}
           aws-region: ${{ vars.AWS_REGION }}
@@ -76,7 +76,7 @@ jobs:
 
       - name: Configurar credenciales AWS via OIDC
         if: github.event_name == 'push'
-        uses: aws-actions/configure-aws-credentials@v5
+        uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ vars.AWS_ROLE_ARN }}
           aws-region: ${{ vars.AWS_REGION }}

@@ -127,6 +127,9 @@ También hay un archivo de ejemplo `docker-compose-prod.yml` (si existe) para de
 
 	- Alternativa: usar las imágenes Docker (el `Dockerfile` del backend ya instala las dependencias de compilación) para evitar instalar toolchains en el host.
 
+- Error en el deploy: `Not authorized to perform sts:AssumeRoleWithWebIdentity` en el workflow `cd.yaml`.
+	- Causa: cambio de formato del claim `sub` en los tokens OIDC de GitHub Actions (immutable subject claims). Ver [`docs/README.md`](docs/README.md) para el diagnóstico completo y la solución aplicada.
+
 - ImportErrors en runtime dentro del contenedor (ej: nombres no exportados desde paquetes):
 	- Si ves errores como `ImportError: cannot import name 'X' from 'app.Y'`, normalmente significa que `__init__.py` no exporta el símbolo. Revisa y asegúrate de que los `__init__.py` re-exportan los routers, servicios o schemas necesarios.
 	- Después de corregir el código, reconstruye la imagen sin cache (ver sección Docker arriba).

@@ -3,7 +3,8 @@ name: Deploy to AWS
 on:
   push:
     branches:
-      - 'main'
+      - main
+      - 'release/*'
 
 permissions:
   id-token: write

@@ -3,7 +3,7 @@ name: Deploy to AWS
 on:
   push:
     branches:
-      - 'release/*'
+      - 'main'
 
 permissions:
   id-token: write
@@ -36,6 +36,45 @@ jobs:
           ls -la
           echo "--- Scripts ---"
           ls -la scripts || true
+
+      - name: Preparar script de arranque con variables del workflow
+        env:
+          DEPLOY_AWS_REGION: ${{ vars.AWS_REGION }}
+          DEPLOY_ECR_REGISTRY: ${{ vars.ECR_REGISTRY }}
+          DEPLOY_APP_VERSION: latest
+        run: |
+          cat > scripts/start_app.sh <<EOF
+          #!/bin/bash
+          set -euo pipefail
+
+          APP_VERSION="\${APP_VERSION:-${DEPLOY_APP_VERSION}}"
+          export APP_VERSION
+
+          cd /opt/mi-app
+
+          AWS_REGION="\${AWS_REGION:-${DEPLOY_AWS_REGION}}"
+          export AWS_REGION
+
+          ECR_REGISTRY="\${ECR_REGISTRY:-${DEPLOY_ECR_REGISTRY}}"
+          if [[ -z "\${ECR_REGISTRY}" ]]; then
+            ACCOUNT_ID="\$(aws sts get-caller-identity --query Account --output text)"
+            ECR_REGISTRY="\${ACCOUNT_ID}.dkr.ecr.\${AWS_REGION}.amazonaws.com"
+          fi
+          export ECR_REGISTRY
+
+          aws ecr get-login-password --region "\$AWS_REGION" | \
+            docker login --username AWS --password-stdin \
+            "\$ECR_REGISTRY"
+
+          COMPOSE_FILE="\${COMPOSE_FILE:-docker-compose.yml}"
+          export COMPOSE_FILE
+
+          docker compose -f "\$COMPOSE_FILE" pull
+          docker compose -f "\$COMPOSE_FILE" down --remove-orphans
+          docker compose -f "\$COMPOSE_FILE" up -d
+          docker image prune -f
+          EOF
+          chmod +x scripts/start_app.sh
 
       - name: Empaquetar y subir a S3
         run: |

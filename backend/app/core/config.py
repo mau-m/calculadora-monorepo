@@ -36,6 +36,7 @@ class Settings(BaseSettings):
     ]
     CORS_ALLOW_METHODS: list[str] = ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
     CORS_ALLOW_HEADERS: list[str] = ["Authorization", "Content-Type"]
+    CORS_EXPOSE_HEADERS: list[str] = ["X-Backend-IP"]
 
     class Config:
         env_file = ".env"

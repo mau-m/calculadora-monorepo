@@ -36,6 +36,7 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=settings.CORS_ALLOW_METHODS,
     allow_headers=settings.CORS_ALLOW_HEADERS,
+    expose_headers=settings.CORS_EXPOSE_HEADERS,
 )
 
 # --- Logging ---

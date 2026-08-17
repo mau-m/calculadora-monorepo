@@ -22,6 +22,7 @@ class TestSumar:
         data = response.json()
         assert data["resultado"] == 15
         assert data["operacion"] == "suma"
+        assert "X-Backend-IP" in response.headers
 
     def test_suma_numeros_negativos(self, client, auth_headers):
         response = client.post(
@@ -48,6 +49,7 @@ class TestSumar:
             json={"a": 1, "b": 2},
         )
         assert response.status_code == 401
+        assert "X-Backend-IP" in response.headers
 
 
 class TestRestar:

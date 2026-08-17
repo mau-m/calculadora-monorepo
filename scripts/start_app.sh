@@ -11,6 +11,35 @@ cd /opt/mi-app
 AWS_REGION="${AWS_REGION:-us-east-1}"
 export AWS_REGION
 
+# Identifica la EC2 que atiende cada respuesta. IMDSv2 es la fuente principal;
+# hostname -I permite desplegar también en hosts sin acceso a metadata.
+detect_instance_ip() {
+  local token=""
+  local instance_ip=""
+
+  if command -v curl >/dev/null 2>&1; then
+    token="$(curl -fsS --connect-timeout 1 --max-time 2 \
+      -X PUT \
+      -H 'X-aws-ec2-metadata-token-ttl-seconds: 300' \
+      'http://169.254.169.254/latest/api/token' || true)"
+
+    if [[ -n "$token" ]]; then
+      instance_ip="$(curl -fsS --connect-timeout 1 --max-time 2 \
+        -H "X-aws-ec2-metadata-token: $token" \
+        'http://169.254.169.254/latest/meta-data/local-ipv4' || true)"
+    fi
+  fi
+
+  if [[ -z "$instance_ip" ]]; then
+    instance_ip="$(hostname -I | awk '{print $1}')"
+  fi
+
+  printf '%s' "$instance_ip"
+}
+
+INSTANCE_IP="${INSTANCE_IP:-$(detect_instance_ip)}"
+export INSTANCE_IP
+
 # Usa el registro ECR inyectado por el workflow. Si no llega, se deriva desde el rol de la instancia.
 ECR_REGISTRY="${ECR_REGISTRY:-}"
 if [[ -z "$ECR_REGISTRY" ]]; then

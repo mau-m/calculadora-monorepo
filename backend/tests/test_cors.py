@@ -27,3 +27,6 @@ def test_cors_get_incluye_headers(client):
     )
     assert response.status_code == 200
     assert response.headers.get("access-control-allow-origin") == "http://localhost:3000"
+    assert "x-backend-ip" in response.headers.get(
+        "access-control-expose-headers", ""
+    ).lower()

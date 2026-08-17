@@ -15,6 +15,7 @@ from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
 from starlette.responses import Response
 
+from app.core.instance_identity import get_backend_ip
 from app.core.logger import logger
 
 
@@ -46,13 +47,27 @@ class LoggingMiddleware(BaseHTTPMiddleware):
         # --- Después del endpoint ---
         duration = time.time() - start_time
         status_code = response.status_code
+        backend_ip = get_backend_ip()
+
+        # Permite identificar qué instancia del ASG respondió, incluso en
+        # respuestas de error que no tienen un body con el schema habitual.
+        response.headers["X-Backend-IP"] = backend_ip
 
         # Elegir nivel de log según el status code
         if status_code >= 500:
-            logger.error(f"← {method} {path} - {status_code} en {duration:.3f}s")
+            logger.error(
+                f"← {method} {path} - {status_code} en {duration:.3f}s "
+                f"(backend={backend_ip})"
+            )
         elif status_code >= 400:
-            logger.warning(f"← {method} {path} - {status_code} en {duration:.3f}s")
+            logger.warning(
+                f"← {method} {path} - {status_code} en {duration:.3f}s "
+                f"(backend={backend_ip})"
+            )
         else:
-            logger.info(f"← {method} {path} - {status_code} en {duration:.3f}s")
+            logger.info(
+                f"← {method} {path} - {status_code} en {duration:.3f}s "
+                f"(backend={backend_ip})"
+            )
 
         return response

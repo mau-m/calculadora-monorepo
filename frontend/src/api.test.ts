@@ -39,8 +39,12 @@ describe('API Service', () => {
 
   describe('sumar', () => {
     test('retorna el resultado de la suma', async () => {
+      const consoleSpy = jest.spyOn(console, 'info').mockImplementation(() => {});
       mockFetch.mockResolvedValueOnce({
         ok: true,
+        headers: {
+          get: jest.fn().mockReturnValue('10.0.1.25'),
+        },
         json: async () => ({
           operacion: 'suma',
           a: 10,
@@ -52,6 +56,10 @@ describe('API Service', () => {
       const result = await sumar({ a: 10, b: 5 }, 'test-token');
       expect(result.resultado).toBe(15);
       expect(result.operacion).toBe('suma');
+      expect(consoleSpy).toHaveBeenCalledWith(
+        '[LB] POST /calculadora/sumar → instancia 10.0.1.25'
+      );
+      consoleSpy.mockRestore();
     });
   });
 

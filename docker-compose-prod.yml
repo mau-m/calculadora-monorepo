@@ -2,6 +2,8 @@ services:
   backend:
     container_name: backend
     image: ${ECR_REGISTRY}/calculadora/backend:${APP_VERSION:-latest}
+    environment:
+      - INSTANCE_IP=${INSTANCE_IP:-}
     expose:
       - "8000"
     networks:

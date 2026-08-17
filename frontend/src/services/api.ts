@@ -23,6 +23,19 @@ export class ApiError extends Error {
   }
 }
 
+// Reporta en la consola del navegador qué instancia del ASG atendió la
+// solicitud. El backend expone este header mediante CORS.
+const logBackendResponse = (
+  response: Response,
+  method: string,
+  endpoint: string
+): void => {
+  const backendIp = response.headers?.get?.("X-Backend-IP");
+  if (backendIp) {
+    console.info(`[LB] ${method} ${endpoint} → instancia ${backendIp}`);
+  }
+};
+
 // --- Autenticación ---
 export const login = async (
   username: string,
@@ -36,6 +49,7 @@ export const login = async (
     method: "POST",
     body: formData,
   });
+  logBackendResponse(response, "POST", "/auth/login");
 
   if (!response.ok) {
     throw new ApiError("Credenciales incorrectas", response.status, "auth/login");
@@ -47,6 +61,7 @@ export const login = async (
 export const healthCheck = async (): Promise<boolean> => {
   try {
     const response = await fetch(`${API_URL}/health`);
+    logBackendResponse(response, "GET", "/health");
     return response.ok;
   } catch {
     return false;
@@ -67,6 +82,7 @@ const operacion = async (
     },
     body: JSON.stringify(data),
   });
+  logBackendResponse(response, "POST", `/calculadora/${endpoint}`);
 
   if (!response.ok) {
     const error = await response.json().catch(() => ({ detail: "Error desconocido" }));

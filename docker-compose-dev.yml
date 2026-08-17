@@ -4,6 +4,8 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
+    environment:
+      - INSTANCE_IP=${INSTANCE_IP:-}
     expose:
       - "8000"
     networks:

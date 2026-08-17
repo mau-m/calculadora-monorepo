@@ -13,6 +13,7 @@ def test_login_exitoso(client):
     data = response.json()
     assert "access_token" in data
     assert data["token_type"] == "bearer"
+    assert "X-Backend-IP" in response.headers
 
 
 def test_login_credenciales_incorrectas(client):
@@ -23,6 +24,7 @@ def test_login_credenciales_incorrectas(client):
     )
     assert response.status_code == 401
     assert "Credenciales incorrectas" in response.json()["detail"]
+    assert "X-Backend-IP" in response.headers
 
 
 def test_login_usuario_inexistente(client):

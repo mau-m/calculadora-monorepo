@@ -8,6 +8,7 @@ export interface OperacionResponse {
   a: number;
   b: number;
   resultado: number;
+  backendIp?: string;
 }
 
 export interface TokenResponse {

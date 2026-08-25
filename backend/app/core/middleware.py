@@ -56,18 +56,15 @@ class LoggingMiddleware(BaseHTTPMiddleware):
         # Elegir nivel de log según el status code
         if status_code >= 500:
             logger.error(
-                f"← {method} {path} - {status_code} en {duration:.3f}s "
-                f"(backend={backend_ip})"
+                f"← {method} {path} - {status_code} en {duration:.3f}s"
             )
         elif status_code >= 400:
             logger.warning(
-                f"← {method} {path} - {status_code} en {duration:.3f}s "
-                f"(backend={backend_ip})"
+                f"← {method} {path} - {status_code} en {duration:.3f}s"
             )
         else:
             logger.info(
-                f"← {method} {path} - {status_code} en {duration:.3f}s "
-                f"(backend={backend_ip})"
+                f"← {method} {path} - {status_code} en {duration:.3f}s"
             )
 
         return response

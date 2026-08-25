@@ -13,6 +13,7 @@ export interface OperacionResponse {
 export interface TokenResponse {
   access_token: string;
   token_type: string;
+  backendIp?: string;
 }
 
 // NUEVO: entrada del historial de operaciones

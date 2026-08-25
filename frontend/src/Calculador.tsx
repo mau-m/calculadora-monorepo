@@ -9,7 +9,9 @@ import { useAuth, useCalculadora } from './hooks';
 const Calculator = () => {
   const imaLogo = new URL('./assets/image/mate.png', import.meta.url).href;
 
-  const { token, isAuthenticated, error: authError, login, logout } = useAuth();
+  const {
+    token, isAuthenticated, backendIp, error: authError, login, logout,
+  } = useAuth();
   const {
     display, isOn, loading,
     error: calcError, historial,
@@ -30,7 +32,12 @@ const Calculator = () => {
       </div>
 
       <Display value={display} isOn={isOn} loading={loading} />
-      <StatusBar isOn={isOn} connected={isAuthenticated} error={error} />
+      <StatusBar
+        isOn={isOn}
+        connected={isAuthenticated}
+        backendIp={backendIp}
+        error={error}
+      />
 
       <div className="buttons_container">
         <div className="power">

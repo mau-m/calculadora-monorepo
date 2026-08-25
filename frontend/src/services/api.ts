@@ -55,7 +55,11 @@ export const login = async (
     throw new ApiError("Credenciales incorrectas", response.status, "auth/login");
   }
 
-  return response.json();
+  const data: TokenResponse = await response.json();
+  return {
+    ...data,
+    backendIp: response.headers?.get?.("X-Backend-IP") || undefined,
+  };
 };
 
 export const healthCheck = async (): Promise<boolean> => {

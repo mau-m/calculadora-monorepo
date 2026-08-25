@@ -28,14 +28,15 @@ const Calculator = () => {
           <img src={imaLogo} alt="icon" />
           CASIO
         </div>
-        <div className="text"></div>
+        <div className="text">
+          {backendIp ? `IP: ${backendIp}` : "IP: --"}
+        </div>
       </div>
 
       <Display value={display} isOn={isOn} loading={loading} />
       <StatusBar
         isOn={isOn}
         connected={isAuthenticated}
-        backendIp={backendIp}
         error={error}
       />
 

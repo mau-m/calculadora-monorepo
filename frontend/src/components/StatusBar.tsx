@@ -9,11 +9,10 @@ import React from 'react';
 interface StatusBarProps {
   isOn: boolean;
   connected: boolean;
-  backendIp: string | null;
   error: string | null;
 }
 
-const StatusBar: React.FC<StatusBarProps> = ({ isOn, connected, backendIp, error }) => {
+const StatusBar: React.FC<StatusBarProps> = ({ isOn, connected, error }) => {
   if (!isOn) return null;
 
   return (
@@ -28,18 +27,6 @@ const StatusBar: React.FC<StatusBarProps> = ({ isOn, connected, backendIp, error
       >
         {connected ? "● Conectado a API" : "○ Sin conexión"}
       </div>
-      {backendIp && (
-        <div
-          style={{
-            color: "#d1d5db",
-            fontSize: "0.7rem",
-            textAlign: "right",
-            marginBottom: "8px",
-          }}
-        >
-          Instancia: {backendIp}
-        </div>
-      )}
       {error && (
         <div
           style={{

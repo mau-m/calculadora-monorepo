@@ -1,11 +1,26 @@
 #!/bin/bash
 set -euo pipefail
 
-# Despliega la imagen indicada por el workflow o por el entorno.
-APP_VERSION="${APP_VERSION:-latest}"
+APP_DIR="/opt/mi-app"
+APP_VERSION_FILE="$APP_DIR/.app-version"
+
+# El workflow siempre inyecta APP_VERSION (el SHA del commit) al regenerar
+# este script antes de empaquetar la revisión. Si por algún motivo no llega
+# por entorno (ej. ejecución manual del hook), el fallback lee el artefacto
+# .app-version incluido en ESTA MISMA revisión de CodeDeploy — nunca "latest",
+# que es un tag mutable: en un rollback automático, la revisión anterior
+# volvería a apuntar al "latest" ya sobrescrito por el despliegue roto.
+if [[ -z "${APP_VERSION:-}" ]]; then
+  if [[ -f "$APP_VERSION_FILE" ]]; then
+    APP_VERSION="$(cat "$APP_VERSION_FILE")"
+  else
+    echo "ERROR: APP_VERSION no está definido y no existe $APP_VERSION_FILE" >&2
+    exit 1
+  fi
+fi
 export APP_VERSION
 
-cd /opt/mi-app
+cd "$APP_DIR"
 
 # Usa la región del entorno o el valor por defecto del despliegue.
 AWS_REGION="${AWS_REGION:-us-east-1}"

@@ -10,16 +10,19 @@ const Calculator = () => {
   const imaLogo = new URL('./assets/image/mate.png', import.meta.url).href;
 
   const {
-    token, isAuthenticated, backendIp, error: authError, login, logout,
+    token, isAuthenticated, backendIp: authBackendIp, error: authError, login, logout,
   } = useAuth();
   const {
     display, isOn, loading,
-    error: calcError, historial,
+    error: calcError, historial, backendIp: calcBackendIp,
     handleNumber, handleDot, handleOperation,
     handleEqual, handleClean, handlePower, limpiarHistorial,
   } = useCalculadora(token, login, logout);
 
   const error = authError || calcError;
+  // La IP de la última operación es la más representativa de qué instancia
+  // del ASG respondió; antes de la primera operación mostramos la del login.
+  const backendIp = calcBackendIp || authBackendIp;
 
   return (
     <div className="calculator">

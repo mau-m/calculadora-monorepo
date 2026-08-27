@@ -105,7 +105,11 @@ const operacion = async (
     );
   }
 
-  return response.json();
+  const resultado: OperacionResponse = await response.json();
+  return {
+    ...resultado,
+    backendIp: response.headers?.get?.("X-Backend-IP") || undefined,
+  };
 };
 
 export const sumar = (data: OperacionRequest, token: string) =>

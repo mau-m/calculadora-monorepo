@@ -32,7 +32,6 @@ interface UseCalculadoraReturn {
   loading: boolean;
   error: string | null;
   historial: HistorialEntry[];
-  backendIp: string | null;
   handleNumber: (value: string) => void;
   handleDot: () => void;
   handleOperation: (op: string) => void;
@@ -56,7 +55,6 @@ export const useCalculadora = (
   const [error, setError] = useState<string | null>(null);
   const [historial, setHistorial] = useState<HistorialEntry[]>([]);
   const [idCounter, setIdCounter] = useState(1);
-  const [backendIp, setBackendIp] = useState<string | null>(null);
 
   const handleNumber = useCallback((value: string) => {
     setError(null);
@@ -109,7 +107,6 @@ export const useCalculadora = (
       const fn = api[endpoint as keyof typeof api] as Function;
       const data = await fn({ a, b }, tokenActual);
       setDisplay(String(data.resultado));
-      if (data.backendIp) setBackendIp(data.backendIp);
 
       // Agregar al historial
       const entry: HistorialEntry = {
@@ -131,7 +128,6 @@ export const useCalculadora = (
             const fn = api[endpoint as keyof typeof api] as Function;
             const data = await fn({ a, b }, nuevoToken);
             setDisplay(String(data.resultado));
-            if (data.backendIp) setBackendIp(data.backendIp);
             return;
           } catch (retryErr: any) {
             setError(retryErr.message);
@@ -156,12 +152,11 @@ export const useCalculadora = (
     setPrimerNumero(null);
     setOperacion(null);
     setError(null);
-    if (isOn) setBackendIp(null);
     setIsOn(!isOn);
   }, [isOn, login, logout]);
 
   return {
-    display, isOn, loading, error, historial, backendIp,
+    display, isOn, loading, error, historial,
     handleNumber, handleDot, handleOperation,
     handleEqual, handleClean, handlePower, limpiarHistorial,
   };
